@@ -1,0 +1,17 @@
+{
+  "client_id": "TEST-DEVICE-001",
+  "device_name": "LAPTOP-TEST",
+  "deployment_profile": "Standard",
+  "phase_name": "Device Setup",
+  "event_type": "progress",
+  "event_timestamp": "2024-01-15T10:30:00Z",
+  "progress_percentage": 50,
+  "status": "in_progress",
+  "duration_seconds": 300,
+  "error_message": null,
+  "metadata": {
+    "esp_active": true,
+    "enrollment_state": 2,
+    "os_version": "10.0.22621.0"
+  }
+}

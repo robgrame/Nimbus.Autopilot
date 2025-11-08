@@ -416,3 +416,28 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Python virtual environments
+api/venv/
+api/__pycache__/
+
+# Node.js dependencies and build
+dashboard/node_modules/
+dashboard/build/
+dashboard/package-lock.json
+
+# Environment files (contain secrets)
+.env
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db

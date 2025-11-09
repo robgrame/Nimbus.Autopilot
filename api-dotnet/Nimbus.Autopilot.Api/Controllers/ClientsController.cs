@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nimbus.Autopilot.Api.Data;
 using Nimbus.Autopilot.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Nimbus.Autopilot.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class ClientsController : ControllerBase
 {
     private readonly NimbusDbContext _context;

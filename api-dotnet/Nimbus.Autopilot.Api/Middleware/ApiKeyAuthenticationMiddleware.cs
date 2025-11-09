@@ -34,6 +34,23 @@ public class ApiKeyAuthenticationMiddleware
             return;
         }
 
+        // Skip API key check for MVC/Razor Pages routes and Entra AD authentication endpoints
+        if (!context.Request.Path.StartsWithSegments("/api") || 
+            context.Request.Path.StartsWithSegments("/api/account") ||
+            context.Request.Path.StartsWithSegments("/signin-oidc") ||
+            context.Request.Path.StartsWithSegments("/signout-oidc"))
+        {
+            await _next(context);
+            return;
+        }
+
+        // Allow authenticated users (Entra AD) to access API endpoints
+        if (context.User?.Identity?.IsAuthenticated == true)
+        {
+            await _next(context);
+            return;
+        }
+
         // Check if API key is present
         if (!context.Request.Headers.TryGetValue(API_KEY_HEADER_NAME, out var extractedApiKey))
         {

@@ -5,11 +5,13 @@ using Newtonsoft.Json;
 using Nimbus.Autopilot.Api.Data;
 using Nimbus.Autopilot.Api.Models;
 using Nimbus.Autopilot.Api.Hubs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Nimbus.Autopilot.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class TelemetryController : ControllerBase
 {
     private readonly NimbusDbContext _context;

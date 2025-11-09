@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Nimbus.Autopilot.Api.Data;
 using Nimbus.Autopilot.Api.Models;
+using Nimbus.Autopilot.Api.Hubs;
 
 namespace Nimbus.Autopilot.Api.Controllers;
 
@@ -12,11 +14,16 @@ public class TelemetryController : ControllerBase
 {
     private readonly NimbusDbContext _context;
     private readonly ILogger<TelemetryController> _logger;
+    private readonly IHubContext<TelemetryHub> _hubContext;
 
-    public TelemetryController(NimbusDbContext context, ILogger<TelemetryController> logger)
+    public TelemetryController(
+        NimbusDbContext context, 
+        ILogger<TelemetryController> logger,
+        IHubContext<TelemetryHub> hubContext)
     {
         _context = context;
         _logger = logger;
+        _hubContext = hubContext;
     }
 
     [HttpPost]
@@ -85,6 +92,21 @@ public class TelemetryController : ControllerBase
 
             _context.TelemetryEvents.Add(telemetryEvent);
             await _context.SaveChangesAsync();
+
+            // Broadcast update to all connected clients via SignalR
+            await _hubContext.Clients.All.SendAsync("ReceiveTelemetryUpdate", new
+            {
+                event_id = telemetryEvent.EventId,
+                client_id = request.ClientId,
+                device_name = request.DeviceName,
+                phase_name = request.PhaseName,
+                event_type = request.EventType,
+                event_timestamp = request.EventTimestamp,
+                progress_percentage = request.ProgressPercentage,
+                status = request.Status,
+                duration_seconds = request.DurationSeconds,
+                error_message = request.ErrorMessage
+            });
 
             return Created($"/api/telemetry/{telemetryEvent.EventId}", new TelemetryResponse
             {

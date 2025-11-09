@@ -473,6 +473,11 @@ docker run --name nimbus-api \
 
 ## Security
 
+### Entra AD Authentication (Azure AD)
+The monitoring dashboard supports Microsoft Entra ID authentication with role-based access control. Only users with the **Administrator** role can access the dashboard.
+
+**See the [Entra AD Setup Guide](ENTRA_AD_SETUP.md) for detailed configuration instructions.**
+
 ### API Authentication
 All API endpoints (except health check) require an API key in the `X-API-Key` header.
 
@@ -595,11 +600,11 @@ For issues and questions:
 Future enhancements:
 - [x] .NET API implementation
 - [x] SQL Server database support
+- [x] Entra AD (Azure AD) authentication
 - [ ] WebSocket support for real-time updates
 - [ ] Email/Slack notifications
 - [ ] Advanced analytics and reporting
 - [ ] Multi-tenant support
-- [ ] Azure AD authentication
 - [ ] Mobile app
 - [ ] Automated remediation workflows
 

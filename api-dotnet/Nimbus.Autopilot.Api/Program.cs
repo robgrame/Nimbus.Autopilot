@@ -4,11 +4,35 @@ using Newtonsoft.Json.Serialization;
 using Nimbus.Autopilot.Api.Data;
 using Nimbus.Autopilot.Api.Middleware;
 using Nimbus.Autopilot.Api.Hubs;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Entra AD authentication
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+// Add authorization with policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Administrator", policy =>
+        policy.RequireRole("Administrator"));
+});
+
 // Add services to the container
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(options =>
+    {
+        // Require authentication for MVC controllers by default
+        var policy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+        options.Filters.Add(new AuthorizeFilter(policy));
+    })
+    .AddMicrosoftIdentityUI()
     .AddNewtonsoftJson(options =>
     {
         // Use snake_case for JSON property names to match Python API
@@ -21,7 +45,8 @@ builder.Services.AddControllersWithViews()
     });
 
 // Add Razor Pages support
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages()
+    .AddMicrosoftIdentityUI();
 
 // Configure database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -68,6 +93,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Enable authentication and authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map SignalR hub
 app.MapHub<TelemetryHub>("/hubs/telemetry");

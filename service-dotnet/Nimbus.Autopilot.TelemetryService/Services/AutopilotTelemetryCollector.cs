@@ -19,8 +19,8 @@ namespace Nimbus.Autopilot.TelemetryService
 
         public AutopilotTelemetryCollector(Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
-            _deploymentProfile = configuration.GetValue<string>("TelemetrySettings:DeploymentProfile", "Standard")!;
-            _clientId = GenerateClientId();
+            _deploymentProfile = configuration["TelemetrySettings:DeploymentProfile"] ?? "Standard";
+   _clientId = GenerateClientId();
 }
 
         public string GetClientId() => _clientId;

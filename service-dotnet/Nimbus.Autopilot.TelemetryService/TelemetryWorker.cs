@@ -34,9 +34,13 @@ private readonly IAutopilotTelemetryCollector _telemetryCollector;
             _telemetryCollector = telemetryCollector;
             _stateManager = stateManager;
 
-     _intervalSeconds = configuration.GetValue<int>("TelemetrySettings:IntervalSeconds", 30);
-            _heartbeatIntervalSeconds = configuration.GetValue<int>("TelemetrySettings:HeartbeatIntervalSeconds", 300);
-       _lastHeartbeat = DateTime.UtcNow;
+   var intervalValue = configuration["TelemetrySettings:IntervalSeconds"];
+ _intervalSeconds = !string.IsNullOrEmpty(intervalValue) ? int.Parse(intervalValue) : 30;
+  
+   var heartbeatValue = configuration["TelemetrySettings:HeartbeatIntervalSeconds"];
+    _heartbeatIntervalSeconds = !string.IsNullOrEmpty(heartbeatValue) ? int.Parse(heartbeatValue) : 300;
+   
+            _lastHeartbeat = DateTime.UtcNow;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -132,34 +136,34 @@ var success = await _apiClient.SendTelemetryAsync(telemetryData, stoppingToken);
 
  private async Task SendHeartbeatAsync(DateTime deploymentStartTime, CancellationToken cancellationToken)
         {
-         try
-  {
-    var heartbeat = new TelemetryData
-                {
-   ClientId = _telemetryCollector.GetClientId(),
-         DeviceName = Environment.MachineName,
-        DeploymentProfile = _configuration.GetValue<string>("TelemetrySettings:DeploymentProfile", "Standard")!,
-          PhaseName = "Service Running",
+      try
+        {
+   var heartbeat = new TelemetryData
+   {
+       ClientId = _telemetryCollector.GetClientId(),
+     DeviceName = Environment.MachineName,
+     DeploymentProfile = _configuration["TelemetrySettings:DeploymentProfile"] ?? "Standard",
+   PhaseName = "Service Running",
    EventType = "heartbeat",
-   EventTimestamp = DateTime.UtcNow,
-   ProgressPercentage = 0,
-             Status = "active",
+    EventTimestamp = DateTime.UtcNow,
+      ProgressPercentage = 0,
+   Status = "active",
         DurationSeconds = (int)(DateTime.UtcNow - deploymentStartTime).TotalSeconds,
-       Metadata = new System.Collections.Generic.Dictionary<string, object>
-          {
-      { "service_uptime_seconds", (int)(DateTime.UtcNow - deploymentStartTime).TotalSeconds },
+   Metadata = new System.Collections.Generic.Dictionary<string, object>
+        {
+  { "service_uptime_seconds", (int)(DateTime.UtcNow - deploymentStartTime).TotalSeconds },
             { "os_version", Environment.OSVersion.Version.ToString() }
-         }
-       };
+    }
+      };
 
     await _apiClient.SendTelemetryAsync(heartbeat, cancellationToken);
-   _logger.LogDebug("Heartbeat sent successfully");
-    }
-            catch (Exception ex)
-            {
-  _logger.LogWarning(ex, "Failed to send heartbeat");
-      }
+     _logger.LogDebug("Heartbeat sent successfully");
+ }
+     catch (Exception ex)
+      {
+      _logger.LogWarning(ex, "Failed to send heartbeat");
         }
+    }
 
   private async Task MaintenanceModeAsync(DateTime deploymentStartTime, CancellationToken stoppingToken)
       {

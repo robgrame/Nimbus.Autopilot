@@ -1,0 +1,90 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api-dotnet", "api-dotnet", "{63619B0A-1656-1D74-FE7C-8394D7436D49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nimbus.Autopilot.Api", "api-dotnet\Nimbus.Autopilot.Api\Nimbus.Autopilot.Api.csproj", "{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service-dotnet", "service-dotnet", "{921A2E70-D18F-30D7-023B-B7335EDD5103}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nimbus.Autopilot.TelemetryService", "service-dotnet\Nimbus.Autopilot.TelemetryService\Nimbus.Autopilot.TelemetryService.csproj", "{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1F8B2C3-4D5A-6E7F-8A9B-0C1D2E3F4A5B}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		SOLUTION.md = SOLUTION.md
+		COMPARISON.md = COMPARISON.md
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		docker-compose.yml = docker-compose.yml
+		docker-compose-dotnet.yml = docker-compose-dotnet.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{F2E3D4C5-6B7A-8C9D-0E1F-2A3B4C5D6E7F}"
+	ProjectSection(SolutionItems) = preProject
+		client\README.md = client\README.md
+		client\QUICKSTART.md = client\QUICKSTART.md
+		client\SERVICE-DEPLOYMENT.md = client\SERVICE-DEPLOYMENT.md
+		client\INTUNE-DEPLOYMENT.md = client\INTUNE-DEPLOYMENT.md
+		client\DECISION-GUIDE.md = client\DECISION-GUIDE.md
+		client\SOLUTION-OVERVIEW.md = client\SOLUTION-OVERVIEW.md
+		client\Send-AutopilotTelemetry.ps1 = client\Send-AutopilotTelemetry.ps1
+		client\Send-AutopilotTelemetry-Service.ps1 = client\Send-AutopilotTelemetry-Service.ps1
+		client\Install-TelemetryService.ps1 = client\Install-TelemetryService.ps1
+		client\Install-TelemetryService-NoNSSM.ps1 = client\Install-TelemetryService-NoNSSM.ps1
+		client\Install-TelemetryService-TaskSchedulerOnly.ps1 = client\Install-TelemetryService-TaskSchedulerOnly.ps1
+		client\Uninstall-TelemetryService.ps1 = client\Uninstall-TelemetryService.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service-scripts", "service-scripts", "{A1B2C3D4-E5F6-7A8B-9C0D-1E2F3A4B5C6D}"
+	ProjectSection(SolutionItems) = preProject
+		service-dotnet\README.md = service-dotnet\README.md
+		service-dotnet\Install-DotNetService.ps1 = service-dotnet\Install-DotNetService.ps1
+		service-dotnet\Uninstall-DotNetService.ps1 = service-dotnet\Uninstall-DotNetService.ps1
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Debug|x64.Build.0 = Debug|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Debug|x86.Build.0 = Debug|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Release|x64.ActiveCfg = Release|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Release|x64.Build.0 = Release|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Release|x86.ActiveCfg = Release|Any CPU
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E}.Release|x86.Build.0 = Release|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Debug|x64.Build.0 = Debug|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Debug|x86.Build.0 = Debug|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Release|x64.ActiveCfg = Release|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Release|x64.Build.0 = Release|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Release|x86.ActiveCfg = Release|Any CPU
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DC2B37D5-B003-468A-8AE6-32BB81E9D27E} = {63619B0A-1656-1D74-FE7C-8394D7436D49}
+		{2A8EF4AF-B4F6-45C8-B060-689AF4A63B5C} = {921A2E70-D18F-30D7-023B-B7335EDD5103}
+		{A1B2C3D4-E5F6-7A8B-9C0D-1E2F3A4B5C6D} = {921A2E70-D18F-30D7-023B-B7335EDD5103}
+	EndGlobalSection
+EndGlobal

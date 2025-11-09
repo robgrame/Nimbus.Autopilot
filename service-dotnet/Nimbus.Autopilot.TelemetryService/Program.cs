@@ -30,8 +30,8 @@ namespace Nimbus.Autopilot.TelemetryService
         // Register the worker service
         services.AddHostedService<TelemetryWorker>();
    
-        // Register HTTP client for API calls
-    services.AddHttpClient<ITelemetryApiClient, TelemetryApiClient>();
+        // Register telemetry API client (singleton with own HttpClient)
+        services.AddSingleton<ITelemetryApiClient, TelemetryApiClient>();
    
      // Register telemetry collector
           services.AddSingleton<IAutopilotTelemetryCollector, AutopilotTelemetryCollector>();

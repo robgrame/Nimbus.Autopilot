@@ -99,6 +99,20 @@ dotnet test
 
 ## API Endpoints
 
+### Web UI (NEW - SignalR Real-time Dashboard)
+```
+GET /                    # Home page
+GET /Home/Dashboard      # Real-time telemetry dashboard
+```
+
+The new SignalR-powered dashboard provides real-time monitoring of telemetry events. See [SIGNALR_DASHBOARD.md](./SIGNALR_DASHBOARD.md) for detailed documentation.
+
+**SignalR Hub**:
+```
+WebSocket /hubs/telemetry
+```
+Automatically broadcasts telemetry updates to all connected clients.
+
 ### Health Check
 ```
 GET /api/health
@@ -237,13 +251,16 @@ The application uses Entity Framework Core with parameterized queries, which pro
 
 ```
 Nimbus.Autopilot.Api/
-├── Controllers/          # API controllers
+├── Controllers/          # API and MVC controllers
 │   ├── HealthController.cs
 │   ├── TelemetryController.cs
 │   ├── ClientsController.cs
-│   └── StatsController.cs
+│   ├── StatsController.cs
+│   └── HomeController.cs (NEW - MVC)
 ├── Data/                 # Database context
 │   └── NimbusDbContext.cs
+├── Hubs/                 # SignalR hubs (NEW)
+│   └── TelemetryHub.cs
 ├── Middleware/           # Custom middleware
 │   └── ApiKeyAuthenticationMiddleware.cs
 ├── Models/               # Data models and DTOs
@@ -251,6 +268,15 @@ Nimbus.Autopilot.Api/
 │   ├── DeploymentPhase.cs
 │   ├── TelemetryEvent.cs
 │   └── Dtos.cs
+├── Views/                # Razor views (NEW)
+│   ├── Home/
+│   │   ├── Index.cshtml
+│   │   └── Dashboard.cshtml
+│   ├── Shared/
+│   │   └── _Layout.cshtml
+│   ├── _ViewStart.cshtml
+│   └── _ViewImports.cshtml
+├── wwwroot/              # Static files (NEW)
 ├── Program.cs            # Application entry point
 ├── appsettings.json      # Configuration
 └── Nimbus.Autopilot.Api.csproj

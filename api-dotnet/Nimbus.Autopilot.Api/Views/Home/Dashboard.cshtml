@@ -1,0 +1,262 @@
+@{
+    ViewData["Title"] = "Real-time Dashboard";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>
+            Real-time Telemetry Dashboard
+            <span class="float-end">
+                <small>
+                    <span class="real-time-indicator" id="connectionStatus"></span>
+                    <span id="connectionText">Disconnected</span>
+                </small>
+            </span>
+        </h1>
+        <hr />
+    </div>
+</div>
+
+<div class="stats-container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <h2 id="totalClients">-</h2>
+                    <p class="mb-0">Total Clients</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <h2 id="activeDeployments">-</h2>
+                    <p class="mb-0">Active Deployments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <h2 id="completedDeployments">-</h2>
+                    <p class="mb-0">Completed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <h2 id="failedDeployments">-</h2>
+                    <p class="mb-0">Failed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Recent Telemetry Events</h3>
+        <div id="telemetryContainer">
+            <div class="alert alert-info">
+                <p class="mb-0">Waiting for telemetry data...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let connection = null;
+    let telemetryEvents = [];
+
+    // Initialize SignalR connection
+    async function initSignalR() {
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/telemetry")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveTelemetryUpdate", function (data) {
+            console.log("Received telemetry update:", data);
+            addTelemetryEvent(data);
+        });
+
+        connection.onreconnecting((error) => {
+            console.log("Reconnecting...", error);
+            updateConnectionStatus(false);
+        });
+
+        connection.onreconnected((connectionId) => {
+            console.log("Reconnected with connectionId:", connectionId);
+            updateConnectionStatus(true);
+        });
+
+        connection.onclose((error) => {
+            console.log("Connection closed", error);
+            updateConnectionStatus(false);
+        });
+
+        try {
+            await connection.start();
+            console.log("SignalR Connected");
+            updateConnectionStatus(true);
+        } catch (err) {
+            console.error("SignalR Connection Error:", err);
+            updateConnectionStatus(false);
+            setTimeout(() => initSignalR(), 5000);
+        }
+    }
+
+    function updateConnectionStatus(connected) {
+        const indicator = document.getElementById("connectionStatus");
+        const text = document.getElementById("connectionText");
+        
+        if (connected) {
+            indicator.classList.add("connected");
+            text.textContent = "Connected";
+        } else {
+            indicator.classList.remove("connected");
+            text.textContent = "Disconnected";
+        }
+    }
+
+    function addTelemetryEvent(data) {
+        // Add to array
+        telemetryEvents.unshift(data);
+        
+        // Keep only last 20 events
+        if (telemetryEvents.length > 20) {
+            telemetryEvents = telemetryEvents.slice(0, 20);
+        }
+        
+        // Re-render
+        renderTelemetryEvents();
+    }
+
+    function renderTelemetryEvents() {
+        const container = document.getElementById("telemetryContainer");
+        
+        if (telemetryEvents.length === 0) {
+            container.innerHTML = '<div class="alert alert-info"><p class="mb-0">No telemetry events yet...</p></div>';
+            return;
+        }
+
+        let html = '';
+        telemetryEvents.forEach((event, index) => {
+            const statusClass = getStatusClass(event.status);
+            const isNew = index === 0;
+            
+            html += `
+                <div class="card telemetry-card ${isNew ? 'new-update' : ''}" data-event-id="${event.event_id || event.eventId}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="card-title">
+                                    ${event.device_name || event.deviceName || event.client_id || event.clientId}
+                                    <span class="badge status-badge ${statusClass}">${event.status || 'unknown'}</span>
+                                </h5>
+                                <p class="card-text mb-1">
+                                    <strong>Phase:</strong> ${event.phase_name || event.phaseName || 'N/A'} | 
+                                    <strong>Event:</strong> ${event.event_type || event.eventType} | 
+                                    <strong>Progress:</strong> ${event.progress_percentage || event.progressPercentage || 0}%
+                                </p>
+                                <small class="text-muted">
+                                    ${new Date(event.event_timestamp || event.eventTimestamp).toLocaleString()}
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar ${getProgressBarClass(event.status)}" 
+                                         role="progressbar" 
+                                         style="width: ${event.progress_percentage || event.progressPercentage || 0}%" 
+                                         aria-valuenow="${event.progress_percentage || event.progressPercentage || 0}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        ${event.progress_percentage || event.progressPercentage || 0}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Remove highlight after animation
+        setTimeout(() => {
+            document.querySelectorAll('.telemetry-card.new-update').forEach(card => {
+                card.classList.remove('new-update');
+            });
+        }, 2000);
+    }
+
+    function getStatusClass(status) {
+        const statusMap = {
+            'completed': 'bg-success',
+            'in_progress': 'bg-primary',
+            'failed': 'bg-danger',
+            'pending': 'bg-warning',
+            'error': 'bg-danger'
+        };
+        return statusMap[status] || 'bg-secondary';
+    }
+
+    function getProgressBarClass(status) {
+        const statusMap = {
+            'completed': 'bg-success',
+            'in_progress': 'bg-primary',
+            'failed': 'bg-danger',
+            'pending': 'bg-warning',
+            'error': 'bg-danger'
+        };
+        return statusMap[status] || '';
+    }
+
+    async function loadStatistics() {
+        try {
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+            
+            document.getElementById('totalClients').textContent = data.total_clients || data.totalClients || 0;
+            document.getElementById('activeDeployments').textContent = data.active_deployments || data.activeDeployments || 0;
+            
+            // Calculate completed and failed from clients_by_status
+            const statusArray = data.clients_by_status || data.clientsByStatus || [];
+            const completed = statusArray.find(s => s.status === 'completed')?.count || 0;
+            const failed = statusArray.find(s => s.status === 'failed' || s.status === 'error')?.count || 0;
+            
+            document.getElementById('completedDeployments').textContent = completed;
+            document.getElementById('failedDeployments').textContent = failed;
+        } catch (err) {
+            console.error("Error loading statistics:", err);
+        }
+    }
+
+    async function loadRecentTelemetry() {
+        try {
+            const response = await fetch('/api/telemetry?limit=10');
+            const data = await response.json();
+            
+            if (data.events && data.events.length > 0) {
+                telemetryEvents = data.events;
+                renderTelemetryEvents();
+            }
+        } catch (err) {
+            console.error("Error loading telemetry:", err);
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        await initSignalR();
+        await loadStatistics();
+        await loadRecentTelemetry();
+        
+        // Refresh statistics every 30 seconds
+        setInterval(loadStatistics, 30000);
+    });
+</script>
+}

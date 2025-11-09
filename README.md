@@ -7,9 +7,23 @@ Enterprise-grade telemetry monitoring solution for Windows Autopilot deployments
 Nimbus.Autopilot provides a complete solution for monitoring Autopilot deployment training progress across your organization. The system consists of:
 
 1. **Client Telemetry Application** - PowerShell script that runs on devices during ESP
-2. **REST API Backend** - Flask-based API for data ingestion and querying
-3. **PostgreSQL Database** - Structured storage for telemetry data
+2. **REST API Backend** - Available in both .NET and Python (Flask) implementations
+3. **Database** - SQL Server (for .NET) or PostgreSQL (for Python)
 4. **Web Dashboard** - React-based UI for visualization and monitoring
+
+## Technology Stacks
+
+### ✨ .NET Stack (Recommended for Microsoft Environments)
+- **API Backend**: ASP.NET Core 8.0 Web API
+- **Database**: SQL Server 2019+
+- **Client**: PowerShell 5.1+
+- **Dashboard**: React with modern JavaScript
+
+### Legacy Python Stack (Still Supported)
+- **API Backend**: Flask (Python 3.8+)
+- **Database**: PostgreSQL 12+
+- **Client**: PowerShell 5.1+
+- **Dashboard**: React with modern JavaScript
 
 ## Features
 
@@ -30,11 +44,11 @@ Nimbus.Autopilot provides a complete solution for monitoring Autopilot deploymen
 - ✅ Statistics and analytics endpoints
 
 ### Database
-- ✅ Normalized PostgreSQL schema
+- ✅ Normalized database schema (SQL Server or PostgreSQL)
 - ✅ Indexed for optimal query performance
 - ✅ Automatic triggers for data consistency
 - ✅ Views for common queries
-- ✅ Support for metadata via JSONB
+- ✅ Support for metadata via JSON
 
 ### Web Dashboard
 - ✅ Real-time deployment monitoring
@@ -46,7 +60,64 @@ Nimbus.Autopilot provides a complete solution for monitoring Autopilot deploymen
 
 ## Quick Start
 
-### Prerequisites
+Choose your preferred technology stack:
+
+### Option 1: .NET + SQL Server (Recommended)
+
+#### Prerequisites
+
+- **.NET 8.0 SDK** (for API)
+- **SQL Server 2019+** (or SQL Server Express)
+- **Node.js 14+** (for dashboard)
+- **PowerShell 5.1+** (for client)
+
+#### 1. Database Setup
+
+```bash
+# Using Docker
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourStrong@Passw0rd" \
+   -p 1433:1433 --name nimbus-sqlserver \
+   -d mcr.microsoft.com/mssql/server:2022-latest
+
+# Create database and apply schema
+sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd' -Q "CREATE DATABASE nimbus_autopilot;"
+sqlcmd -S localhost -U sa -P 'YourStrong@Passw0rd' -d nimbus_autopilot -i database-sqlserver/schema.sql
+```
+
+#### 2. API Backend Setup (.NET)
+
+```bash
+cd api-dotnet/Nimbus.Autopilot.Api
+
+# Configure environment (update connection string and API key)
+cp .env.example .env
+# Edit appsettings.json with your database credentials and API key
+
+# Run the API
+dotnet run
+```
+
+The API will be available at `http://localhost:5000`.
+
+#### 3. Dashboard Setup
+
+```bash
+cd dashboard
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your API endpoint and key
+
+# Run development server
+npm start
+```
+
+The dashboard will be available at `http://localhost:3000`.
+
+### Option 2: Python + PostgreSQL (Legacy)
+
+#### Prerequisites
 
 - **Python 3.8+** (for API)
 - **PostgreSQL 12+** (for database)
@@ -115,6 +186,27 @@ Deploy the PowerShell script to your Autopilot devices:
 
 ## Architecture
 
+### .NET Stack Architecture
+```
+┌─────────────────┐
+│  Client Device  │
+│   (PowerShell)  │
+└────────┬────────┘
+         │ HTTPS/JSON
+         ▼
+┌─────────────────┐      ┌──────────────┐
+│  ASP.NET Core   │◄────►│ SQL Server   │
+│     API         │      │   Database   │
+└────────┬────────┘      └──────────────┘
+         │ REST API
+         ▼
+┌─────────────────┐
+│  Web Dashboard  │
+│    (React)      │
+└─────────────────┘
+```
+
+### Python Stack Architecture (Legacy)
 ```
 ┌─────────────────┐
 │  Client Device  │
@@ -167,7 +259,7 @@ GET /api/deployment-phases
 Headers: X-API-Key: your_api_key
 ```
 
-See [API Documentation](api/README.md) for complete details.
+See [.NET API Documentation](api-dotnet/README.md) or [Python API Documentation](api/README.md) for complete details.
 
 ## Deployment Phases
 
@@ -182,10 +274,23 @@ The system tracks these deployment phases:
 
 ## Docker Deployment
 
-### Using Docker Compose
+### .NET Stack with Docker Compose
 
 ```bash
-# Start all services
+# Start all services (.NET API + SQL Server + Dashboard)
+docker-compose -f docker-compose-dotnet.yml up -d
+
+# View logs
+docker-compose -f docker-compose-dotnet.yml logs -f
+
+# Stop all services
+docker-compose -f docker-compose-dotnet.yml down
+```
+
+### Python Stack with Docker Compose (Legacy)
+
+```bash
+# Start all services (Python API + PostgreSQL + Dashboard)
 docker-compose up -d
 
 # View logs
@@ -195,9 +300,37 @@ docker-compose logs -f
 docker-compose down
 ```
 
-### Individual Containers
+### Individual Containers (.NET Stack)
 
-**Database:**
+**SQL Server Database:**
+```bash
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourStrong@Passw0rd" \
+  -p 1433:1433 --name nimbus-sqlserver \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+```
+
+**.NET API:**
+```bash
+docker build -t nimbus-api-dotnet ./api-dotnet
+docker run --name nimbus-api-dotnet \
+  -e ConnectionStrings__DefaultConnection="Server=sqlserver;Database=nimbus_autopilot;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;" \
+  -e ApiKey=your_api_key \
+  -p 5000:5000 \
+  --link nimbus-sqlserver:sqlserver \
+  -d nimbus-api-dotnet
+```
+
+**Dashboard:**
+```bash
+docker build -t nimbus-dashboard ./dashboard
+docker run --name nimbus-dashboard \
+  -p 80:80 \
+  -d nimbus-dashboard
+```
+
+### Individual Containers (Python Stack - Legacy)
+
+**PostgreSQL Database:**
 ```bash
 docker run --name nimbus-postgres \
   -e POSTGRES_DB=nimbus_autopilot \
@@ -207,24 +340,16 @@ docker run --name nimbus-postgres \
   -d postgres:15
 ```
 
-**API:**
+**Python API:**
 ```bash
 docker build -t nimbus-api ./api
 docker run --name nimbus-api \
   -e DB_HOST=postgres \
   -e DB_PASSWORD=your_password \
   -e API_KEY=your_api_key \
-  -p 5000:5000 \
+  -p 5001:5001 \
   --link nimbus-postgres:postgres \
   -d nimbus-api
-```
-
-**Dashboard:**
-```bash
-docker build -t nimbus-dashboard ./dashboard
-docker run --name nimbus-dashboard \
-  -p 80:80 \
-  -d nimbus-dashboard
 ```
 
 ## Security
@@ -290,7 +415,8 @@ curl http://localhost:5000/api/clients \
 - Rotation: Daily
 
 **Database Logs:**
-- PostgreSQL logs in configured log directory
+- SQL Server logs in configured log directory (for .NET stack)
+- PostgreSQL logs in configured log directory (for Python stack)
 
 ### Metrics
 
@@ -348,6 +474,8 @@ For issues and questions:
 ## Roadmap
 
 Future enhancements:
+- [x] .NET API implementation
+- [x] SQL Server database support
 - [ ] WebSocket support for real-time updates
 - [ ] Email/Slack notifications
 - [ ] Advanced analytics and reporting
@@ -359,9 +487,11 @@ Future enhancements:
 ## Acknowledgments
 
 Built with:
-- Flask (API framework)
-- PostgreSQL (Database)
-- React (Frontend framework)
+- **Primary Stack**: ASP.NET Core, SQL Server, React, PowerShell
+- **Legacy Stack**: Flask, PostgreSQL, React, PowerShell
+- Chart.js (Visualizations)
+- Entity Framework Core (ORM)
+- Docker (Containerization)
 - Chart.js (Visualizations)
 - PowerShell (Client application)
 

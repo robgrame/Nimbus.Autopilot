@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Nimbus.Autopilot.Api.Data;
 using Nimbus.Autopilot.Api.Middleware;
 
@@ -6,7 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers()
-    .AddNewtonsoftJson(); // Use Newtonsoft.Json for JSON serialization
+    .AddNewtonsoftJson(options =>
+    {
+        // Use snake_case for JSON property names to match Python API
+        options.SerializerSettings.ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy()
+        };
+        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+        options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+    });
 
 // Configure database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

@@ -2,6 +2,45 @@
 
 PowerShell-based telemetry client for monitoring Windows Autopilot Enrollment Status Page (ESP) progress.
 
+## Deployment Options
+
+### ?? **Option 1: Windows Service (Recommended for Production)**
+
+**Best for:** Production deployments requiring automatic startup, reboot survival, and continuous monitoring.
+
+**Features:**
+- ? Automatic startup on device boot
+- ? Survives reboots with state persistence
+- ? Self-healing with automatic restart on failure
+- ? Task Scheduler backup for redundancy
+- ? Heartbeat monitoring
+- ? Maintenance mode after deployment completion
+
+**Quick Install:**
+```powershell
+.\Install-TelemetryService.ps1 `
+    -ApiEndpoint "https://api.yourdomain.com" `
+    -ApiKey "your_api_key"
+```
+
+**?? See [QUICKSTART.md](QUICKSTART.md) for 5-minute setup guide**  
+**?? See [SERVICE-DEPLOYMENT.md](SERVICE-DEPLOYMENT.md) for complete documentation**
+
+---
+
+### ?? **Option 2: Direct Script Execution**
+
+**Best for:** Testing, one-time deployments, or custom integration scenarios.
+
+**Usage:**
+```powershell
+.\Send-AutopilotTelemetry.ps1 -ApiKey "your_api_key_here"
+```
+
+**Note:** This option does NOT survive reboots. For production, use the Windows Service option above.
+
+---
+
 ## Features
 
 - **Automated Monitoring**: Continuously monitors Autopilot ESP progress

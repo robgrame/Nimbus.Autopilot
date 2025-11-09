@@ -6,10 +6,129 @@ Enterprise-grade telemetry monitoring solution for Windows Autopilot deployments
 
 Nimbus.Autopilot provides a complete solution for monitoring Autopilot deployment training progress across your organization. The system consists of:
 
-1. **Client Telemetry Application** - PowerShell script that runs on devices during ESP
+1. **Client Telemetry Application** - Windows Service (.NET) or PowerShell scripts that run on devices during ESP
 2. **REST API Backend** - Available in both .NET and Python (Flask) implementations
 3. **Database** - SQL Server (for .NET) or PostgreSQL (for Python)
 4. **Web Dashboard** - React-based UI for visualization and monitoring
+
+## 🆕 Client Deployment Options
+
+### ⭐ **Option 1: .NET Windows Service (Enterprise-Ready)**
+
+**RECOMMENDED FOR ENTERPRISE ENVIRONMENTS** - Native Windows Service written in .NET Framework 4.8.
+
+**Benefits:**
+- ✅ **100% Microsoft stack** - no external tools required
+- ✅ **Zero dependencies** - .NET Framework 4.8 already installed on Windows 10/11
+- ✅ **Native Event Log** - integrated logging in Windows Event Viewer
+- ✅ **Compliance-ready** - ideal for audits and certifications
+- ✅ **Optimal performance** - ~15-20 MB RAM (vs ~40-50 MB PowerShell)
+- ✅ **Standard management** - native Services.msc
+
+**Quick Start:**
+```powershell
+# Project build
+cd service-dotnet\Nimbus.Autopilot.TelemetryService
+dotnet publish -c Release -o ..\..\publish\service
+
+# Installation (as Administrator)
+cd ..
+.\Install-DotNetService.ps1 `
+    -ApiEndpoint "https://api.yourdomain.com" `
+    -ApiKey "your_api_key" `
+    -ServiceExecutable "C:\path\to\publish\service\Nimbus.Autopilot.TelemetryService.exe"
+```
+
+**📖 Full Documentation:** [service-dotnet/README.md](service-dotnet/README.md)
+
+---
+
+### **Option 2: PowerShell Scripts with Windows Service**
+
+For quick deployments or when .NET skills are not available.
+
+**Features:**
+- ✅ **Survives device reboots** - Automatic restart on boot
+- ✅ **State persistence** - Maintains deployment tracking across reboots
+- ✅ **Self-healing** - Automatic recovery from crashes
+- ✅ **Dual-layer protection** - Windows Service + Task Scheduler backup
+- ✅ **Zero-touch deployment** - Deploy via Intune, GPO, or provisioning packages
+- ✅ **Heartbeat monitoring** - Regular health checks
+- ✅ **Maintenance mode** - Continues monitoring after deployment completion
+
+**PowerShell Sub-options:**
+**2a. With NSSM** (better logging and management)
+```powershell
+.\client\Install-TelemetryService.ps1 `
+    -ApiEndpoint "https://api.yourdomain.com" `
+    -ApiKey "your_api_key"
+```
+
+**2b. With sc.exe** (only native Windows components)
+```powershell
+.\client\Install-TelemetryService-NoNSSM.ps1 `
+    -ApiEndpoint "https://api.yourdomain.com" `
+ -ApiKey "your_api_key"
+```
+
+**2c. Task Scheduler Only** (maximum simplicity)
+```powershell
+.\client\Install-TelemetryService-TaskSchedulerOnly.ps1 `
+    -ApiEndpoint "https://api.yourdomain.com" `
+    -ApiKey "your_api_key"
+```
+
+**📖 PowerShell Documentation:**
+- **[QUICKSTART.md](client/QUICKSTART.md)** - 5-minute setup guide
+- **[SERVICE-DEPLOYMENT.md](client/SERVICE-DEPLOYMENT.md)** - Complete service documentation
+- **[INTUNE-DEPLOYMENT.md](client/INTUNE-DEPLOYMENT.md)** - Deploy as Intune Win32 app
+- **[DECISION-GUIDE.md](client/DECISION-GUIDE.md)** - Compare deployment options
+
+---
+
+## 📊 Solution Comparison
+
+| Feature | .NET Service | PowerShell + NSSM | PowerShell + sc.exe | Task Scheduler Only |
+|---------|--------------|-------------------|---------------------|---------------------|
+| **External tools** | ✅ None | ⚠️ NSSM (open source) | ✅ None | ✅ None |
+| **Compliance** | 🟢🟢🟢 | 🟡 | 🟢🟢 | 🟢🟢 |
+| **Performance** | 🟢 Excellent | 🟡 Good | 🟡 Good | 🟡 Good |
+| **Memory** | ~15-20 MB | ~40-50 MB | ~40-50 MB | ~40-50 MB |
+| **Logging** | Event Viewer | Log file | Log file | Log file |
+| **Enterprise-Ready** | ✅✅✅ | ✅✅ | ✅✅ | ✅ |
+
+**📖 Detailed Comparison:** [COMPARISON.md](COMPARISON.md)
+
+---
+
+## 💡 Which Solution to Choose?
+
+### ✅ Use **.NET Windows Service** if:
+- Enterprise environment with policies on open source software
+- Compliance audits required (ISO, SOC2, HIPAA, etc.)
+- Preference for 100% Microsoft solutions
+- Team has .NET/C# skills
+- Centralized Event Log is important
+
+### ✅ Use **PowerShell + NSSM** if:
+- Rapid deployment without compilation
+- Open source tools are acceptable
+- Team is skilled in PowerShell
+- Better file-based logging is required
+
+### ✅ Use **PowerShell + sc.exe** if:
+- Only native Microsoft components are needed
+- NSSM is not available/allowed
+- Simplicity is important
+
+### ✅ Use **Task Scheduler Only** if:
+- Testing/development
+- Maximum simplicity
+- 5+ minute intervals are acceptable
+
+**📖 Complete Decision Guide:** [client/DECISION-GUIDE.md](client/DECISION-GUIDE.md)
+
+---
 
 ## Technology Stacks
 
